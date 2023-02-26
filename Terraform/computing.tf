@@ -3,8 +3,8 @@ resource "aws_lb" "alb" {
 	name = "application-load-balancer"
 	internal = false
 	load_balancer_type = "application"
-	subnets = [ aws_subnet.public-subnet.cidr_block ]
-	security_groups = [ aws_security_group.https-inbound-sg ]
+	subnets = [ for subnet in aws_subnet.public-subnet : subnet.id ]
+	security_groups = [ aws_security_group.https-inbound-sg.id ]
 }
 
 # Create the security group that allow all https inbound traffic
@@ -54,7 +54,7 @@ resource "aws_launch_configuration" "asg-launch-configuration" {
 	name_prefix = "asg-launch-configuration-"
 	image_id = data.aws_ami.tg-instance-type.id
 	instance_type = "t2.micro"
-	security_groups = [ aws_security_group.alb-only-inbound-sg ]
+	security_groups = [ aws_security_group.alb-only-inbound-sg.id ]
 	
 	lifecycle {
 		# This attribute is necessary if we change name or name_prefix properties
@@ -74,7 +74,7 @@ resource "aws_security_group" "alb-only-inbound-sg" {
 		ipv6_cidr_blocks = []
 		prefix_list_ids = []
 		protocol = "HTTP"
-		security_groups = [ aws_security_group.https-inbound-sg ]
+		security_groups = [ aws_security_group.https-inbound-sg.id ]
 		self = false
 		to_port = 80
 	} ]
@@ -86,7 +86,7 @@ resource "aws_security_group" "alb-only-inbound-sg" {
 		ipv6_cidr_blocks = []
 		prefix_list_ids = []
 		protocol = "-1"
-		security_groups = [ aws_security_group.https-inbound-sg ]
+		security_groups = [ aws_security_group.https-inbound-sg.id ]
 		self = false
 		to_port = 80
 	} ]
@@ -102,13 +102,13 @@ resource "aws_autoscaling_group" "asg" {
 	desired_capacity = 1
 	max_size = 3
 	launch_configuration = aws_launch_configuration.asg-launch-configuration.name
-	vpc_zone_identifier = [ "value" ] # understand how to retrieve cidr.blocks from p-sunet
+	vpc_zone_identifier = [ for subnet in aws_subnet.private-subnet : subnet.id ]
 	
 	tag {
 		key   = "name"
 		value = "auto-scaling-group"
 		# Propagate tags to the EC2 instances created in the scaling process
-		proppropagate_at_launch = true 
+		propagate_at_launch = true 
 	}
 }
 
