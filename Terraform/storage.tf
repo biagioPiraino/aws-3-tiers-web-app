@@ -11,6 +11,24 @@ resource "aws_s3_bucket_policy" "allow-requests-from-instances" {
 
 # Create a policy document
 data "aws_iam_policy_document" "deny-external-requests" {
+  # Restrict access to a specific VPC
+  statement {
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    effect = "Deny"
+    actions = ["s3:*"]
+    resources = [
+      aws_s3_bucket.s3-storage.arn,
+      "${aws_s3_bucket.s3-storage.arn}/*"
+    ]
+    condition {
+      test     = "StringNotEquals"
+      variable = "aws:SourceVpc"
+      values   = [ aws_vpc.vpc.id ] 
+    }
+  }
 }
 
 # Enable versioning
