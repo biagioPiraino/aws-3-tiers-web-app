@@ -61,3 +61,10 @@ resource "aws_route_table_association" "public-subnet-association" {
   subnet_id = aws_subnet.public-subnet.*.id[count.index]
   route_table_id = aws_route_table.vpc-route-table.id
 }
+
+# Create a VPC endpoint for the S3 bucket
+resource "aws_vpc_endpoint" "s3-vpc-endpoint" {
+  vpc_endpoint_type = "Gateway"
+  vpc_id = aws_vpc.vpc.id
+  service_name = "com.amazonaws.${var.region_deployment}.s3"
+}

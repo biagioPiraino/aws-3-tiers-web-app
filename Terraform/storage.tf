@@ -11,8 +11,9 @@ resource "aws_s3_bucket_policy" "allow-requests-from-instances" {
 
 # Create a policy document
 data "aws_iam_policy_document" "deny-external-requests" {
-  # Restrict access to a specific VPC
+  # Restrict access to a specific VPC endpoint
   statement {
+    sid = "restrict-all-outside-vpc-endpoint"
     principals {
       type        = "*"
       identifiers = ["*"]
@@ -25,8 +26,8 @@ data "aws_iam_policy_document" "deny-external-requests" {
     ]
     condition {
       test     = "StringNotEquals"
-      variable = "aws:SourceVpc"
-      values   = [ aws_vpc.vpc.id ] 
+      variable = "aws:SourceVpce"
+      values   = [ aws_vpc_endpoint.s3-vpc-endpoint.id ] 
     }
   }
 }
