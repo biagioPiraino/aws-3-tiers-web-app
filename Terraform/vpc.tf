@@ -27,7 +27,7 @@ resource "aws_subnet" "public-subnet" {
 resource "aws_subnet" "private-subnet" {
   count = 3
   availability_zone = data.aws_availability_zones.available.names[count.index]
-   # To avoid overlapping the blocks with the public subnet
+  # To avoid overlapping the blocks with the public subnet
   cidr_block = "10.0.${count.index + 3}.0/24"
   vpc_id = aws_vpc.vpc.id
   map_public_ip_on_launch = false
@@ -37,22 +37,10 @@ resource "aws_subnet" "private-subnet" {
 # traffic to public subnets
 resource "aws_route_table" "vpc-route-table" {
   vpc_id = aws_vpc.vpc.id
-  route = [ {
+  route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.internet-gateway.id
-    carrier_gateway_id = ""
-    core_network_arn = ""
-    destination_prefix_list_id = ""
-    egress_only_gateway_id = ""
-    instance_id = ""
-    ipv6_cidr_block = ""
-    local_gateway_id = ""
-    nat_gateway_id = ""
-    network_interface_id = ""
-    transit_gateway_id = ""
-    vpc_endpoint_id = ""
-    vpc_peering_connection_id = ""
-  } ]
+  }
 }
 
 # Associate the route table with the public subnet
@@ -72,54 +60,6 @@ resource "aws_vpc_endpoint" "s3-vpc-endpoint" {
 # Create a route table to route traffic from private subnet to the endpoint
 resource "aws_route_table" "s3-vpc-endpoint-private-routing" {
   vpc_id = aws_vpc.vpc.id
-  route = [ {
-    cidr_block = "10.0.3.0/24"
-    vpc_endpoint_id = aws_vpc_endpoint.s3-vpc-endpoint.id
-    gateway_id = ""
-    carrier_gateway_id = ""
-    core_network_arn = ""
-    destination_prefix_list_id = ""
-    egress_only_gateway_id = ""
-    instance_id = ""
-    ipv6_cidr_block = ""
-    local_gateway_id = ""
-    nat_gateway_id = ""
-    network_interface_id = ""
-    transit_gateway_id = ""
-    vpc_peering_connection_id = ""
-  } , 
-  {
-    cidr_block = "10.0.4.0/24"
-    vpc_endpoint_id = aws_vpc_endpoint.s3-vpc-endpoint.id
-    gateway_id = ""
-    carrier_gateway_id = ""
-    core_network_arn = ""
-    destination_prefix_list_id = ""
-    egress_only_gateway_id = ""
-    instance_id = ""
-    ipv6_cidr_block = ""
-    local_gateway_id = ""
-    nat_gateway_id = ""
-    network_interface_id = ""
-    transit_gateway_id = ""
-    vpc_peering_connection_id = ""
-  },
-  {
-    cidr_block = "10.0.5.0/24"
-    vpc_endpoint_id = aws_vpc_endpoint.s3-vpc-endpoint.id
-    gateway_id = ""
-    carrier_gateway_id = ""
-    core_network_arn = ""
-    destination_prefix_list_id = ""
-    egress_only_gateway_id = ""
-    instance_id = ""
-    ipv6_cidr_block = ""
-    local_gateway_id = ""
-    nat_gateway_id = ""
-    network_interface_id = ""
-    transit_gateway_id = ""
-    vpc_peering_connection_id = ""
-  }]
 }
 
 # Create a vpc endpoint route table association to associate the private 
@@ -156,4 +96,26 @@ data "aws_iam_policy_document" "access-to-specific-bucket" {
       "${aws_s3_bucket.s3-storage.arn}/*"
     ]
   }
+}
+
+# Create 2 private subnets for the DB instance
+resource "aws_subnet" "db-private-subnet" {
+  count = 2
+  availability_zone = data.aws_availability_zones.available.names[count.index]
+  # To avoid overlapping the blocks with other subnets
+  cidr_block = "10.0.${count.index + 6}.0/24"
+  vpc_id = aws_vpc.vpc.id
+  map_public_ip_on_launch = false
+}
+
+# Create a routing table for the private db subnets
+resource "aws_route_table" "db-private-routing" {
+  vpc_id = aws_vpc.vpc.id
+}
+
+# And associate the db private subnet with it
+resource "aws_route_table_association" "db-private-routing-association" {
+  count = 2
+  route_table_id = aws_route_table.db-private-routing.id
+  subnet_id = aws_subnet.db-private-subnet.*.id[count.index]
 }
