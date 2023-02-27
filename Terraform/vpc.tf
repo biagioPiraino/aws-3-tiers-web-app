@@ -27,7 +27,7 @@ resource "aws_subnet" "public-subnet" {
 resource "aws_subnet" "private-subnet" {
   count = 3
   availability_zone = data.aws_availability_zones.available.names[count.index]
-   # To avoid overlapping the blocks with the public subnet
+  # To avoid overlapping the blocks with the public subnet
   cidr_block = "10.0.${count.index + 3}.0/24"
   vpc_id = aws_vpc.vpc.id
   map_public_ip_on_launch = false
@@ -156,4 +156,26 @@ data "aws_iam_policy_document" "access-to-specific-bucket" {
       "${aws_s3_bucket.s3-storage.arn}/*"
     ]
   }
+}
+
+# Create 2 private subnets for the DB instance
+resource "aws_subnet" "db-private-subnet" {
+  count = 2
+  availability_zone = data.aws_availability_zones.available.names[count.index]
+  # To avoid overlapping the blocks with other subnets
+  cidr_block = "10.0.${count.index + 6}.0/24"
+  vpc_id = aws_vpc.vpc.id
+  map_public_ip_on_launch = false
+}
+
+# Create a routing table for the private db subnets
+resource "aws_route_table" "db-private-routing" {
+  vpc_id = aws_vpc.vpc.id
+}
+
+# And associate the db private subnet with it
+resource "aws_route_table_association" "db-private-routing-association" {
+  count = 2
+  route_table_id = aws_route_table.db-private-routing.id
+  subnet_id = aws_subnet.db-private-subnet.*.id[count.index]
 }
