@@ -1,9 +1,9 @@
 # Create a postgresql instance
 resource "aws_db_instance" "postgresql-instance" {
-  db_name = "application-database" 
+  db_name = "ApplicationDatabase" 
   allocated_storage     = 10
   max_allocated_storage = 30
-  engine         = "postgresql"
+  engine         = "postgres"
   engine_version = "14"
   instance_class = "db.t3.micro"
   username = "master"   # Insert a username for master DB user

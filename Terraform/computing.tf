@@ -15,13 +15,13 @@ resource "aws_security_group" "https-inbound-sg" {
 	ingress = [ {
 		cidr_blocks = [ "0.0.0.0/0" ]
 		description = "Allow https traffic from everywhere"
-		from_port = 443
+		from_port = 80
 		ipv6_cidr_blocks = []
 		prefix_list_ids = []
 		protocol = "tcp"
 		security_groups = []
 		self = false
-		to_port = 443
+		to_port = 80
 	} ]
 
 	egress = [ {
@@ -82,13 +82,13 @@ resource "aws_security_group" "alb-only-inbound-sg" {
 	egress = [ {
 		cidr_blocks = []
 		description = "Allow outbound traffic to reach the ALB only"
-		from_port = 80
+		from_port = 0
 		ipv6_cidr_blocks = []
 		prefix_list_ids = []
 		protocol = "-1"
 		security_groups = [ aws_security_group.https-inbound-sg.id ]
 		self = false
-		to_port = 80
+		to_port = 0
 	} ]
 
 	vpc_id = aws_vpc.vpc.id

@@ -37,22 +37,10 @@ resource "aws_subnet" "private-subnet" {
 # traffic to public subnets
 resource "aws_route_table" "vpc-route-table" {
   vpc_id = aws_vpc.vpc.id
-  route = [ {
+  route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.internet-gateway.id
-    carrier_gateway_id = ""
-    core_network_arn = ""
-    destination_prefix_list_id = ""
-    egress_only_gateway_id = ""
-    instance_id = ""
-    local_gateway_id = ""
-    nat_gateway_id = ""
-    network_interface_id = ""
-    transit_gateway_id = ""
-    vpc_endpoint_id = ""
-    vpc_peering_connection_id = ""
-    ipv6_cidr_block = "::/0"
-  } ]
+  }
 }
 
 # Associate the route table with the public subnet
@@ -72,54 +60,6 @@ resource "aws_vpc_endpoint" "s3-vpc-endpoint" {
 # Create a route table to route traffic from private subnet to the endpoint
 resource "aws_route_table" "s3-vpc-endpoint-private-routing" {
   vpc_id = aws_vpc.vpc.id
-  route = [ {
-    cidr_block = "10.0.3.0/24"
-    vpc_endpoint_id = aws_vpc_endpoint.s3-vpc-endpoint.id
-    gateway_id = ""
-    carrier_gateway_id = ""
-    core_network_arn = ""
-    destination_prefix_list_id = ""
-    egress_only_gateway_id = ""
-    instance_id = ""
-    local_gateway_id = ""
-    nat_gateway_id = ""
-    network_interface_id = ""
-    transit_gateway_id = ""
-    vpc_peering_connection_id = "",
-    ipv6_cidr_block = "::/0"
-  } , 
-  {
-    cidr_block = "10.0.4.0/24"
-    vpc_endpoint_id = aws_vpc_endpoint.s3-vpc-endpoint.id
-    gateway_id = ""
-    carrier_gateway_id = ""
-    core_network_arn = ""
-    destination_prefix_list_id = ""
-    egress_only_gateway_id = ""
-    instance_id = ""
-    local_gateway_id = ""
-    nat_gateway_id = ""
-    network_interface_id = ""
-    transit_gateway_id = ""
-    vpc_peering_connection_id = "",
-    ipv6_cidr_block = "::/0"
-  },
-  {
-    cidr_block = "10.0.5.0/24"
-    vpc_endpoint_id = aws_vpc_endpoint.s3-vpc-endpoint.id
-    gateway_id = ""
-    carrier_gateway_id = ""
-    core_network_arn = ""
-    destination_prefix_list_id = ""
-    egress_only_gateway_id = ""
-    instance_id = ""
-    local_gateway_id = ""
-    nat_gateway_id = ""
-    network_interface_id = ""
-    transit_gateway_id = ""
-    vpc_peering_connection_id = ""
-    ipv6_cidr_block = "::/0"
-  }]
 }
 
 # Create a vpc endpoint route table association to associate the private 
