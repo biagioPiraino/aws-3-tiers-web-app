@@ -3,35 +3,6 @@ resource "aws_s3_bucket" "s3-storage" {
   bucket = "web-app-main-storage"
 }
 
-# Create an S3 bucket policy to allow requests from the instances only
-resource "aws_s3_bucket_policy" "allow-requests-from-instances" {
-  bucket = aws_s3_bucket.s3-storage.id
-  policy = data.aws_iam_policy_document.deny-external-requests.json
-}
-
-# Create a policy document
-data "aws_iam_policy_document" "deny-external-requests" {
-  # Restrict access to a specific VPC endpoint
-  statement {
-    sid = "RestrictAllOutsideVpcEndpoint"
-    principals {
-      type        = "*"
-      identifiers = ["*"]
-    }
-    effect = "Deny"
-    actions = ["s3:*"]
-    resources = [
-      aws_s3_bucket.s3-storage.arn,
-      "${aws_s3_bucket.s3-storage.arn}/*"
-    ]
-    condition {
-      test     = "StringNotEquals"
-      variable = "aws:SourceVpce"
-      values   = [ aws_vpc_endpoint.s3-vpc-endpoint.id ] 
-    }
-  }
-}
-
 # Enable versioning
 resource "aws_s3_bucket_versioning" "s3-versioning" {
   bucket = aws_s3_bucket.s3-storage.id

@@ -45,13 +45,13 @@ resource "aws_route_table" "vpc-route-table" {
     destination_prefix_list_id = ""
     egress_only_gateway_id = ""
     instance_id = ""
-    ipv6_cidr_block = ""
     local_gateway_id = ""
     nat_gateway_id = ""
     network_interface_id = ""
     transit_gateway_id = ""
     vpc_endpoint_id = ""
     vpc_peering_connection_id = ""
+    ipv6_cidr_block = "::/0"
   } ]
 }
 
@@ -81,12 +81,12 @@ resource "aws_route_table" "s3-vpc-endpoint-private-routing" {
     destination_prefix_list_id = ""
     egress_only_gateway_id = ""
     instance_id = ""
-    ipv6_cidr_block = ""
     local_gateway_id = ""
     nat_gateway_id = ""
     network_interface_id = ""
     transit_gateway_id = ""
-    vpc_peering_connection_id = ""
+    vpc_peering_connection_id = "",
+    ipv6_cidr_block = "::/0"
   } , 
   {
     cidr_block = "10.0.4.0/24"
@@ -97,12 +97,12 @@ resource "aws_route_table" "s3-vpc-endpoint-private-routing" {
     destination_prefix_list_id = ""
     egress_only_gateway_id = ""
     instance_id = ""
-    ipv6_cidr_block = ""
     local_gateway_id = ""
     nat_gateway_id = ""
     network_interface_id = ""
     transit_gateway_id = ""
-    vpc_peering_connection_id = ""
+    vpc_peering_connection_id = "",
+    ipv6_cidr_block = "::/0"
   },
   {
     cidr_block = "10.0.5.0/24"
@@ -113,12 +113,12 @@ resource "aws_route_table" "s3-vpc-endpoint-private-routing" {
     destination_prefix_list_id = ""
     egress_only_gateway_id = ""
     instance_id = ""
-    ipv6_cidr_block = ""
     local_gateway_id = ""
     nat_gateway_id = ""
     network_interface_id = ""
     transit_gateway_id = ""
     vpc_peering_connection_id = ""
+    ipv6_cidr_block = "::/0"
   }]
 }
 
