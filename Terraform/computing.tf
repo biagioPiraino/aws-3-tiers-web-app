@@ -44,7 +44,7 @@ data "aws_ami" "tg-instance-type" {
 	most_recent = true
 	owners = [ "amazon" ]
 	filter {
-		name = "name" # check if relevant/mandatory, remove otherwise
+		name = "name"
 		values = [ "amzn-ami-hvm-*-x86_64-ebs" ]
 	}
 }

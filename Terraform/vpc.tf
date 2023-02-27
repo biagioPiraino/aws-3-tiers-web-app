@@ -61,3 +61,99 @@ resource "aws_route_table_association" "public-subnet-association" {
   subnet_id = aws_subnet.public-subnet.*.id[count.index]
   route_table_id = aws_route_table.vpc-route-table.id
 }
+
+# Create a VPC endpoint for the S3 bucket
+resource "aws_vpc_endpoint" "s3-vpc-endpoint" {
+  vpc_endpoint_type = "Gateway"
+  vpc_id = aws_vpc.vpc.id
+  service_name = "com.amazonaws.${var.region_deployment}.s3"
+}
+
+# Create a route table to route traffic from private subnet to the endpoint
+resource "aws_route_table" "s3-vpc-endpoint-private-routing" {
+  vpc_id = aws_vpc.vpc.id
+  route = [ {
+    cidr_block = "10.0.3.0/24"
+    vpc_endpoint_id = aws_vpc_endpoint.s3-vpc-endpoint.id
+    gateway_id = ""
+    carrier_gateway_id = ""
+    core_network_arn = ""
+    destination_prefix_list_id = ""
+    egress_only_gateway_id = ""
+    instance_id = ""
+    ipv6_cidr_block = ""
+    local_gateway_id = ""
+    nat_gateway_id = ""
+    network_interface_id = ""
+    transit_gateway_id = ""
+    vpc_peering_connection_id = ""
+  } , 
+  {
+    cidr_block = "10.0.4.0/24"
+    vpc_endpoint_id = aws_vpc_endpoint.s3-vpc-endpoint.id
+    gateway_id = ""
+    carrier_gateway_id = ""
+    core_network_arn = ""
+    destination_prefix_list_id = ""
+    egress_only_gateway_id = ""
+    instance_id = ""
+    ipv6_cidr_block = ""
+    local_gateway_id = ""
+    nat_gateway_id = ""
+    network_interface_id = ""
+    transit_gateway_id = ""
+    vpc_peering_connection_id = ""
+  },
+  {
+    cidr_block = "10.0.5.0/24"
+    vpc_endpoint_id = aws_vpc_endpoint.s3-vpc-endpoint.id
+    gateway_id = ""
+    carrier_gateway_id = ""
+    core_network_arn = ""
+    destination_prefix_list_id = ""
+    egress_only_gateway_id = ""
+    instance_id = ""
+    ipv6_cidr_block = ""
+    local_gateway_id = ""
+    nat_gateway_id = ""
+    network_interface_id = ""
+    transit_gateway_id = ""
+    vpc_peering_connection_id = ""
+  }]
+}
+
+# Create a vpc endpoint route table association to associate the private 
+# routing table with the endpoint
+resource "aws_vpc_endpoint_route_table_association" "s3-vpc-endpoint-routing-association" {
+  route_table_id = aws_route_table.s3-vpc-endpoint-private-routing.id
+  vpc_endpoint_id = aws_vpc_endpoint.s3-vpc-endpoint.id
+}
+
+# Create a vpc endpoint's policy to allow only certain kind of operations
+# towards the s3 target bucket
+resource "aws_vpc_endpoint_policy" "s3-vpc-endpoint-policy" {
+  vpc_endpoint_id = aws_vpc_endpoint.s3-vpc-endpoint.id
+  policy = data.aws_iam_policy_document.access-to-specific-bucket.json
+}
+
+# Create a policy document
+data "aws_iam_policy_document" "access-to-specific-bucket" {
+  # Allow only certain kind of operations to be performed 
+  # on a specific s3 bucket
+  statement {
+    sid = "AccessSpecificBucket"
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket",
+      "s3:GetObject",
+      "s3:PutObject"]
+    resources = [
+      aws_s3_bucket.s3-storage.arn,
+      "${aws_s3_bucket.s3-storage.arn}/*"
+    ]
+  }
+}
