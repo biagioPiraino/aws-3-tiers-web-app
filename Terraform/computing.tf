@@ -18,7 +18,7 @@ resource "aws_security_group" "https-inbound-sg" {
 		from_port = 443
 		ipv6_cidr_blocks = []
 		prefix_list_ids = []
-		protocol = "HTTPS"
+		protocol = "tcp"
 		security_groups = []
 		self = false
 		to_port = 443
@@ -73,7 +73,7 @@ resource "aws_security_group" "alb-only-inbound-sg" {
 		from_port = 80
 		ipv6_cidr_blocks = []
 		prefix_list_ids = []
-		protocol = "HTTP"
+		protocol = "tcp"
 		security_groups = [ aws_security_group.https-inbound-sg.id ]
 		self = false
 		to_port = 80
