@@ -119,38 +119,3 @@ resource "aws_route_table_association" "db-private-routing-association" {
   route_table_id = aws_route_table.db-private-routing.id
   subnet_id      = aws_subnet.db-private-subnet.*.id[count.index]
 }
-
-# Create a specific public subnet for the NAT Gateway
-resource "aws_subnet" "nat-gateway-subnet" {
-  vpc_id                  = aws_vpc.vpc.id
-  availability_zone       = data.aws_availability_zones.available.names[0]
-  cidr_block              = "10.0.8.0/24"
-  map_public_ip_on_launch = true
-}
-
-### The following part is not part of free tier, for details           ###
-### about the pricing please look https://aws.amazon.com/vpc/pricing/  ###
-
-# Create a NAT gateway to allow SSH access to private EC2s
-resource "aws_eip" "nat-gateway-eip" {
-  vpc = true
-}
-
-resource "aws_nat_gateway" "nat-gateway" {
-  allocation_id = aws_eip.nat-gateway-eip.id
-  subnet_id     = aws_subnet.nat-gateway-subnet.id
-}
-
-# Update the VPC route table to include the NAT Gateway routing
-resource "aws_route_table" "nat-gateway-routing" {
-  vpc_id = aws_vpc.vpc.id
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat-gateway.id
-  }
-}
-
-resource "aws_route_table_association" "nat-gateway-routing-association" {
-  route_table_id = aws_route_table.nat-gateway-routing
-  subnet_id      = aws_subnet.nat-gateway-subnet.id
-}

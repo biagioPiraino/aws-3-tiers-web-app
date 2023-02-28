@@ -65,7 +65,6 @@ resource "aws_launch_configuration" "asg-launch-configuration" {
 }
 
 # Define the security group to allow inbound traffic to the EC2 only from the ALB
-# and SSH on port 22
 resource "aws_security_group" "alb-only-inbound-sg" {
   name = "alb-only-inbound-security-group"
 
@@ -79,17 +78,7 @@ resource "aws_security_group" "alb-only-inbound-sg" {
     security_groups  = [aws_security_group.http-inbound-sg.id]
     self             = false
     to_port          = 80
-    }, {
-    cidr_blocks      = ["0.0.0.0/0"]
-    description      = "Allow incoming SSH traffic"
-    from_port        = 22
-    ipv6_cidr_blocks = []
-    prefix_list_ids  = []
-    protocol         = "tcp"
-    security_groups  = []
-    self             = false
-    to_port          = 22
-  }]
+    }]
 
   egress = [{
     cidr_blocks      = []
