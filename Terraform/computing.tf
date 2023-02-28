@@ -55,6 +55,7 @@ resource "aws_launch_configuration" "asg-launch-configuration" {
 	image_id = data.aws_ami.tg-instance-type.id
 	instance_type = "t2.micro"
 	security_groups = [ aws_security_group.alb-only-inbound-sg.id ]
+	user_data = file("ec2-user-data.sh")
 	
 	lifecycle {
 		# This attribute is necessary if we change name or name_prefix properties
