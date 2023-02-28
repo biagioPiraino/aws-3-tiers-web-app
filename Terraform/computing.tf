@@ -5,6 +5,7 @@ resource "aws_lb" "alb" {
   load_balancer_type = "application"
   subnets            = [for subnet in aws_subnet.public-subnet : subnet.id]
   security_groups    = [aws_security_group.http-inbound-sg.id]
+  enable_cross_zone_load_balancing = true
 }
 
 # Create the security group that allow all http inbound traffic
@@ -135,6 +136,6 @@ resource "aws_lb_listener" "alb-asg-listener" {
 
 # Create an autoscaling group attachment to connect the ALB to the target group
 resource "aws_autoscaling_attachment" "asg-attachment" {
-  autoscaling_group_name = aws_autoscaling_group.asg.id
+  autoscaling_group_name = aws_autoscaling_group.asg.name
   lb_target_group_arn    = aws_lb_target_group.alb-target-group.arn
 }
