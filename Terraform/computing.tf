@@ -4,17 +4,17 @@ resource "aws_lb" "alb" {
 	internal = false
 	load_balancer_type = "application"
 	subnets = [ for subnet in aws_subnet.public-subnet : subnet.id ]
-	security_groups = [ aws_security_group.https-inbound-sg.id ]
+	security_groups = [ aws_security_group.http-inbound-sg.id ]
 }
 
-# Create the security group that allow all https inbound traffic
+# Create the security group that allow all http inbound traffic
 # and that will be associated to the ALB
-resource "aws_security_group" "https-inbound-sg" {
-	name = "inbound-https-security-group"
+resource "aws_security_group" "http-inbound-sg" {
+	name = "inbound-http-security-group"
 
 	ingress = [ {
 		cidr_blocks = [ "0.0.0.0/0" ]
-		description = "Allow https traffic from everywhere"
+		description = "Allow http traffic from everywhere"
 		from_port = 80
 		ipv6_cidr_blocks = []
 		prefix_list_ids = []
@@ -65,6 +65,7 @@ resource "aws_launch_configuration" "asg-launch-configuration" {
 }
 
 # Define the security group to allow inbound traffic to the EC2 only from the ALB
+# and SSH on port 22
 resource "aws_security_group" "alb-only-inbound-sg" {
 	name = "alb-only-inbound-security-group"
 
@@ -75,10 +76,20 @@ resource "aws_security_group" "alb-only-inbound-sg" {
 		ipv6_cidr_blocks = []
 		prefix_list_ids = []
 		protocol = "tcp"
-		security_groups = [ aws_security_group.https-inbound-sg.id ]
+		security_groups = [ aws_security_group.http-inbound-sg.id ]
 		self = false
 		to_port = 80
-	} ]
+	}, {
+		cidr_blocks = ["0.0.0.0/0"]
+		description = "Allow incoming SSH traffic"
+		from_port = 22
+		ipv6_cidr_blocks = []
+		prefix_list_ids = []
+		protocol = "tcp"
+		security_groups = []
+		self = false
+		to_port = 22
+	}]
 
 	egress = [ {
 		cidr_blocks = []
@@ -87,7 +98,7 @@ resource "aws_security_group" "alb-only-inbound-sg" {
 		ipv6_cidr_blocks = []
 		prefix_list_ids = []
 		protocol = "-1"
-		security_groups = [ aws_security_group.https-inbound-sg.id ]
+		security_groups = [ aws_security_group.http-inbound-sg.id ]
 		self = false
 		to_port = 0
 	} ]
