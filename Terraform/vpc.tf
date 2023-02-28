@@ -128,6 +128,9 @@ resource "aws_subnet" "nat-gateway-subnet" {
   map_public_ip_on_launch = true
 }
 
+### The following part is not part of free tier, for details           ###
+### about the pricing please look https://aws.amazon.com/vpc/pricing/  ###
+
 # Create a NAT gateway to allow SSH access to private EC2s
 resource "aws_eip" "nat-gateway-eip" {
   vpc = true
