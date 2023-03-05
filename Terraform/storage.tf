@@ -20,44 +20,34 @@ resource "aws_s3_bucket_public_access_block" "s3-block-public-access" {
   restrict_public_buckets = true
 }
 
-# Defining lifecycles for current objects
-resource "aws_s3_bucket_lifecycle_configuration" "s3-lifecycles" {
+# Define the bucket policy to deny all the operations that comes
+# from outside the internal vpc
+resource "aws_s3_bucket_policy" "s3-bucket-policy" {
   bucket = aws_s3_bucket.s3-storage.id
-
-  rule {
-    id     = "current"
-    status = "Enabled"
-
-    filter { prefix = "current/" }
-    expiration { days = 120 }
-
-    transition {
-      days          = 30
-      storage_class = "STANDARD_IA"
-    }
-
-    transition {
-      days          = 60
-      storage_class = "GLACIER"
-    }
-  }
+  policy = data.aws_iam_policy_document.s3-bucket-policy-document.json
 }
 
-# Defining lifecycles for non current objects in order to
-# apply transition and expiration to versioned objects
-resource "aws_s3_bucket_lifecycle_configuration" "s3-versioning-lifecycles" {
-  bucket     = aws_s3_bucket.s3-storage.id
-  depends_on = [aws_s3_bucket_versioning.s3-versioning]
-
-  rule {
-    id     = "non-current"
-    status = "Enabled"
-
-    filter { prefix = "non-current/" }
-    noncurrent_version_expiration { noncurrent_days = 90 }
-    noncurrent_version_transition {
-      noncurrent_days = 30
-      storage_class   = "GLACIER"
+# Create a policy document to deny all requests that do not come from 
+# a specific VPC endpoint. This policy disables console access
+# to the specified bucket, because console requests don't originate 
+# from the specified VPC endpoint.
+data "aws_iam_policy_document" "s3-bucket-policy-document" {
+  statement {
+    sid = "S3BucketPolicy"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    effect  = "Deny"
+    actions = ["*"]
+    resources = [
+      aws_s3_bucket.s3-storage.arn,
+      "${aws_s3_bucket.s3-storage.arn}/*"
+    ]
+    condition {
+      test     = "StringNotEquals"
+      variable = "aws:SourceVpce"
+      values   = [aws_vpc_endpoint.s3-vpc-endpoint.id]
     }
   }
 }
