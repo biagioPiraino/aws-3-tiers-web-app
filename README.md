@@ -1,5 +1,5 @@
-# Three-Tier Cloud Infrastructure
-Deploy a secure three-tier cloud infrastructure on AWS using Terraform :cloud:
+# Three-Tier Cloud Architecture
+Deploy a secure three-tier cloud architecture on AWS using Terraform :cloud:
 
 ## What's in the script
 
