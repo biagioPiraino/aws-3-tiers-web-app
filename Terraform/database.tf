@@ -25,8 +25,8 @@ resource "aws_db_subnet_group" "db-subnet-group" {
 
 # Define the security group for the RDS instance
 resource "aws_security_group" "ec2-only-inbound-sg" {
-  name = "rds-only-ec2-inbound-security-group"
-
+  name   = "rds-only-ec2-inbound-security-group"
+  vpc_id = module.vpc.vpc_id
   ingress = [{
     cidr_blocks      = []
     description      = "Allow incoming traffic only from an EC2"
@@ -39,7 +39,7 @@ resource "aws_security_group" "ec2-only-inbound-sg" {
     to_port          = 5432
   }]
 
-    egress = [{
+  egress = [{
     cidr_blocks      = ["0.0.0.0/0"]
     description      = "Allow all outbound traffic"
     from_port        = 0
@@ -50,6 +50,4 @@ resource "aws_security_group" "ec2-only-inbound-sg" {
     security_groups  = []
     self             = false
   }]
-
-  vpc_id = module.vpc.vpc_id
 }

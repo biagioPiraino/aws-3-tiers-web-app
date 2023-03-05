@@ -47,7 +47,7 @@ data "aws_iam_policy_document" "s3-bucket-policy-document" {
     condition {
       test     = "StringNotEquals"
       variable = "aws:SourceVpce"
-      values   = [ aws_vpc_endpoint.s3-vpc-endpoint.id ]
+      values   = [aws_vpc_endpoint.s3-vpc-endpoint.id]
     }
   }
 }

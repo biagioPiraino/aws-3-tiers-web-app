@@ -28,7 +28,7 @@ resource "aws_instance" "app-tier" {
 # KEY PAIR        #
 ###################
 resource "aws_key_pair" "public-key-pair" {
-  key_name = "public-key-pair"
+  key_name   = "public-key-pair"
   public_key = "" # Insert your generated SSH key
 }
 
