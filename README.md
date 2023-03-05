@@ -10,5 +10,8 @@ Deploy a secure three-tier cloud infrastructure on AWS using Terraform :cloud:
 - A private S3 bucket accessible directly from the VPC by using a Gateway Endpoint 
 - Appropriate Security Groups to enforce a strict communication between different components
 
+## Diagram
+<img src="./aws-three-tiers.png?raw=true" width="300">
+
 ## Activities
  :heavy_check_mark::heavy_check_mark: Functionality tested
