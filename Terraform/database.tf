@@ -34,7 +34,7 @@ resource "aws_security_group" "ec2-only-inbound-sg" {
     ipv6_cidr_blocks = []
     prefix_list_ids  = []
     protocol         = "tcp"
-    security_groups  = [aws_security_group.allow-all-http-traffic.id]
+    security_groups  = [aws_security_group.allow-http-traffic-from-public-instance.id]
     self             = false
     to_port          = 5432
   }]
