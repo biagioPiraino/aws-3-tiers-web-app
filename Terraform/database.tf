@@ -20,7 +20,7 @@ resource "aws_db_instance" "postgresql-instance" {
 resource "aws_db_subnet_group" "db-subnet-group" {
   name        = "db-subnet-group"
   description = "DB private subnet group"
-  subnet_ids  = [for subnet in aws_subnet.db-private-subnet : subnet.id]
+  subnet_ids  = module.vpc.database_subnets
 }
 
 # Define the security group for the RDS instance
@@ -34,10 +34,22 @@ resource "aws_security_group" "ec2-only-inbound-sg" {
     ipv6_cidr_blocks = []
     prefix_list_ids  = []
     protocol         = "tcp"
-    security_groups  = [aws_security_group.alb-only-inbound-sg.id]
+    security_groups  = [aws_security_group.allow-all-http-traffic.id]
     self             = false
     to_port          = 5432
   }]
 
-  vpc_id = aws_vpc.vpc.id
+    egress = [{
+    cidr_blocks      = ["0.0.0.0/0"]
+    description      = "Allow all outbound traffic"
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    security_groups  = []
+    self             = false
+  }]
+
+  vpc_id = module.vpc.vpc_id
 }
