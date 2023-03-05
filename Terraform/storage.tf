@@ -27,7 +27,10 @@ resource "aws_s3_bucket_policy" "s3-bucket-policy" {
   policy = data.aws_iam_policy_document.s3-bucket-policy-document.json
 }
 
-# Create a policy document
+# Create a policy document to deny all requests that do not come from 
+# a specific VPC endpoint. This policy disables console access
+# to the specified bucket, because console requests don't originate 
+# from the specified VPC endpoint.
 data "aws_iam_policy_document" "s3-bucket-policy-document" {
   statement {
     sid = "S3BucketPolicy"
@@ -43,8 +46,8 @@ data "aws_iam_policy_document" "s3-bucket-policy-document" {
     ]
     condition {
       test     = "StringNotEquals"
-      variable = "aws:SourceVpc"
-      values   = [module.vpc.vpc_id]
+      variable = "aws:SourceVpce"
+      values   = [ aws_vpc_endpoint.s3-vpc-endpoint.id ]
     }
   }
 }
